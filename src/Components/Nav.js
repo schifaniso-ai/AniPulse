@@ -1,58 +1,84 @@
-import React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 import {
   FaPlayCircle,
   FaBell,
+  FaBars,
+  FaTimes,
+  FaRandom,
 } from "react-icons/fa";
+import SignUpModal from "./SignUpModal";
+import LoginModal from "./LoginModal";
+import PrimaryButton from "./ui/PrimaryButton";
+import SecondaryButton from "./ui/SecondaryButton";
+import SearchBar from "./ui/SearchBar";
 
 const Wrapper = styled.nav`
+  position: sticky;
+  top: 0;
+  z-index: 100;
   width: 100%;
-  min-height: 80px;
-  padding: 0 1.5rem;
+  min-height: 70px;
+  padding: 0 5%;
   box-sizing: border-box;
-  background: #222831;
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(85, 96, 110, 0.25);
+  background: rgba(21, 21, 33, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 1rem;
 `;
 
 const Logo = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   color: #f8fafc;
   font-family: "Sora", sans-serif;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
   min-width: 0;
-  max-width: 100%;
+  cursor: pointer;
 
   .icon {
     color: #e22227;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
   }
 `;
 
 const NavLinks = styled.div`
   display: flex;
-  gap: 2rem;
-  min-width: 0;
-  max-width: 100%;
+  gap: 1.8rem;
 
   a {
-    color: #d9e2ec;
+    color: #8892a4;
     text-decoration: none;
     font-family: "Inter", sans-serif;
     font-weight: 500;
-    transition: 0.3s;
+    font-size: 14px;
+    transition: color 0.3s;
+    position: relative;
 
     &:hover {
-      color: #e22227;
+      color: #f8fafc;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #e22227;
+      border-radius: 1px;
+      transition: width 0.3s ease;
+    }
+
+    &:hover::after {
+      width: 100%;
     }
   }
 
@@ -64,38 +90,79 @@ const NavLinks = styled.div`
 const RightSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 1rem;
-  min-width: 0;
-  max-width: 100%;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  gap: 0.8rem;
+`;
 
-  @media (max-width: 768px) {
-    width: 100%;
-    justify-content: space-between;
-    gap: 0.5rem;
+const Hamburger = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  color: #f8fafc;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #e22227;
+  }
+
+  @media (max-width: 900px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const RandomBtn = styled.button`
+  background: none;
+  border: none;
+  color: #8892a4;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: #e22227;
+    background: rgba(226, 34, 39, 0.1);
+  }
+
+  @media (max-width: 500px) {
+    display: none;
   }
 `;
 
 const BellButton = styled.button`
   position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   border: none;
-  background: #222831;
-  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+  color: #8892a4;
   cursor: pointer;
-  font-size: 1rem;
-  min-width: 0;
-  max-width: 100%;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+
+  &:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.1);
+  }
 
   .dot {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 8px;
-    height: 8px;
+    top: 7px;
+    right: 7px;
+    width: 7px;
+    height: 7px;
     background: #e22227;
     border-radius: 50%;
   }
@@ -103,58 +170,82 @@ const BellButton = styled.button`
 
 const AuthButtons = styled.div`
   display: flex;
-  gap: 0.8rem;
-  min-width: 0;
-  max-width: 100%;
-
-  button {
-    padding: 0.7rem 1.2rem;
-    border-radius: 12px;
-    font-family: "Inter", sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-
-  .signin {
-    background: transparent;
-    border: 1px solid #55606e;
-    color: #f8fafc;
-
-    &:hover {
-      border-color: #e22227;
-      color: #e22227;
-    }
-  }
-
-  .signup {
-    background: linear-gradient(135deg, #e22227, #c7080c);
-    border: none;
-    color: white;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(226, 34, 39, 0.35);
-    }
-  }
+  gap: 0.6rem;
 
   @media (max-width: 600px) {
-    .signin {
+    .signin-btn {
       display: none;
     }
   }
 
   @media (max-width: 500px) {
-    .signup {
+    .signup-btn {
       display: none;
     }
   }
 `;
 
+const MobileMenu = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  opacity: ${({ open }) => (open ? 1 : 0)};
+  pointer-events: ${({ open }) => (open ? "auto" : "none")};
+  transition: opacity 0.3s ease;
+`;
 
+const MobileClose = styled.button`
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: #f8fafc;
+  font-size: 24px;
+  cursor: pointer;
+`;
+
+const MobileNav = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+
+  a {
+    color: #d9e2ec;
+    text-decoration: none;
+    font-family: "Sora", sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #e22227;
+    }
+  }
+`;
+
+const MobileAuth = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 200px;
+`;
 
 const Navbar = () => {
+  const [showSignUp, setShowSignUp] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
+    <>
     <Wrapper>
       <Logo>
         <FaPlayCircle className="icon" />
@@ -165,23 +256,63 @@ const Navbar = () => {
         <a href="./Pages/Hero">Home</a>
         <a href="./Pages/Trending">Trending</a>
         <a href="./Pages/Genres">Genres</a>
-        <a href='./Pages/WatchList'>Watch List</a>
+        <a href="./Pages/WatchList">Watch List</a>
         <a href="./Pages/Downloads">Downloads</a>
       </NavLinks>
 
+      <SearchBar />
+
       <RightSection>
-        
+        <RandomBtn title="Random Anime">
+          <FaRandom />
+        </RandomBtn>
+
         <BellButton>
           <FaBell />
           <span className="dot"></span>
         </BellButton>
 
         <AuthButtons>
-          <button className="signin">Sign In</button>
-          <button className="signup">Sign Up</button>
+          <SecondaryButton size="sm" className="signin-btn" onClick={()=>setShowLogin(true)}>Sign In</SecondaryButton>
+          <PrimaryButton size="sm" className="signup-btn" onClick={()=>setShowSignUp(true)}>Sign Up</PrimaryButton>
         </AuthButtons>
+
+        <Hamburger onClick={()=>setMobileOpen(true)}>
+          <FaBars />
+        </Hamburger>
       </RightSection>
     </Wrapper>
+
+    <MobileMenu open={mobileOpen}>
+      <MobileClose onClick={()=>setMobileOpen(false)}>
+        <FaTimes />
+      </MobileClose>
+      <MobileNav>
+        <a href="./Pages/Hero" onClick={()=>setMobileOpen(false)}>Home</a>
+        <a href="./Pages/Trending" onClick={()=>setMobileOpen(false)}>Trending</a>
+        <a href="./Pages/Genres" onClick={()=>setMobileOpen(false)}>Genres</a>
+        <a href="./Pages/WatchList" onClick={()=>setMobileOpen(false)}>Watch List</a>
+        <a href="./Pages/Downloads" onClick={()=>setMobileOpen(false)}>Downloads</a>
+      </MobileNav>
+      <MobileAuth>
+        <SecondaryButton fullWidth onClick={()=>{ setMobileOpen(false); setShowLogin(true); }}>Sign In</SecondaryButton>
+        <PrimaryButton fullWidth onClick={()=>{ setMobileOpen(false); setShowSignUp(true); }}>Sign Up</PrimaryButton>
+      </MobileAuth>
+    </MobileMenu>
+
+    {showLogin && (
+      <LoginModal
+        onClose={()=>setShowLogin(false)}
+        onSwitchToSignUp={()=>{ setShowLogin(false); setShowSignUp(true); }}
+      />
+    )}
+    {showSignUp && (
+      <SignUpModal
+        onClose={()=>setShowSignUp(false)}
+        onSwitchToLogin={()=>{ setShowSignUp(false); setShowLogin(true); }}
+      />
+    )}
+    </>
   );
 };
 

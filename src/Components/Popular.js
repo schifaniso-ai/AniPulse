@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {getTrendingAnime} from "../Api/anilist";
+import {getPopularAnime} from "../Api/anilist";
 import styled from "styled-components";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Navigation, Pagination, Autoplay} from "swiper/modules";
@@ -10,7 +10,7 @@ import {SkeletonCard} from "./ui/Skeleton";
 
 const Section = styled.section`
   padding: 50px 8%;
-  background: #151521;
+  background: #1a1a2e;
   color: white;
 
   .swiper-pagination-bullet {
@@ -72,7 +72,7 @@ const CardWrapper = styled.div`
   overflow: hidden;
   cursor: pointer;
   height: 360px;
-  background: #1a1a2e;
+  background: #151521;
 
   img {
     width: 100%;
@@ -126,19 +126,43 @@ const CardWrapper = styled.div`
       text-overflow: ellipsis;
     }
 
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 6px;
+
+      .status-badge {
+        background: #e22227;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 10px;
+      }
+    }
+
+    .genres {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+
+      span {
+        font-size: 10px;
+        color: #8892a4;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+    }
+
     .rating {
       font-size: 13px;
       color: #ffd369;
       font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .ep-info {
-      font-size: 11px;
-      color: #8892a4;
-      margin-top: 4px;
     }
   }
 `;
@@ -148,12 +172,12 @@ const formatType = (f) => {
   return f.replace("_", " ");
 };
 
-function Trending() {
+function Popular() {
   const [anime, setAnime] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getTrendingAnime()
+    getPopularAnime()
       .then((data) => setAnime(data))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -162,16 +186,16 @@ function Trending() {
   return (
     <Section>
       <Header>
-        <h2>Trending Anime</h2>
+        <h2>Popular Anime</h2>
         <div className="nav-buttons">
-          <button className="trend-prev">&lt;</button>
-          <button className="trend-next">&gt;</button>
+          <button className="pop-prev">&lt;</button>
+          <button className="pop-next">&gt;</button>
         </div>
       </Header>
 
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
-        navigation={{ prevEl: ".trend-prev", nextEl: ".trend-next" }}
+        navigation={{ prevEl: ".pop-prev", nextEl: ".pop-next" }}
         pagination={{ clickable: true }}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
         spaceBetween={16}
@@ -199,11 +223,17 @@ function Trending() {
                   )}
                   <div className="card-content">
                     <h3>{item.title.romaji}</h3>
+                    <div className="meta">
+                      <span className="status-badge">{item.status}</span>
+                      <span>{item.episodes} eps</span>
+                    </div>
+                    <div className="genres">
+                      {item.genres?.slice(0, 2).map((g, i) => (
+                        <span key={i}>{g}</span>
+                      ))}
+                    </div>
                     {item.averageScore && (
                       <span className="rating">★ {item.averageScore}%</span>
-                    )}
-                    {item.episodes && (
-                      <div className="ep-info">{item.episodes} episodes</div>
                     )}
                   </div>
                 </CardWrapper>
@@ -214,4 +244,4 @@ function Trending() {
   );
 }
 
-export default Trending;
+export default Popular;
